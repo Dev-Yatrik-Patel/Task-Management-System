@@ -6,3 +6,4 @@ psycopg2-binary
 pydantic
 python-multipart
 passlib[bcrypt]
+pydantic_settings
