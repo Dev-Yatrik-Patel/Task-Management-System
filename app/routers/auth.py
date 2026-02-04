@@ -36,7 +36,7 @@ async def login(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="User not found or Invalid credentials",
         )
     
     access_token = create_access_token(subject=str(user.id))
