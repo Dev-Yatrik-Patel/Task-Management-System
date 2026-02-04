@@ -10,6 +10,7 @@ class TaskCreate(BaseModel):
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
+    description: Optional[str] = None
     status: Optional[str] = None
 
 
