@@ -15,7 +15,10 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 async def register(user_in: UserCreate, db: Session = Depends(get_db)):
     existing_user = get_user_by_email(db, user_in.email)
     if existing_user:
-        return error_response(status_code=status.HTTP_400_BAD_REQUEST,message="Email already registered",error_code = "ALREADY_REGISTERED_EMAIL")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered",
+        )
     user = create_user(db, user_in)
     return success_response(data = UserResponse.model_validate(user).model_dump(mode="json"))
 
@@ -31,7 +34,10 @@ async def login(
         password=form_data.password,
     )
     if not user:
-        return error_response(status_code=status.HTTP_401_UNAUTHORIZED,message="Invalid credentials",error_code = "UNAUTHORIZED")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
     
     access_token = create_access_token(subject=str(user.id))
     return {

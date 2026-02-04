@@ -48,7 +48,10 @@ async def get_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
     return success_response(data = TaskResponse.model_validate(task).model_dump(mode="json"))
 
 @router.put("/{task_id}", response_model=TaskResponse)
@@ -60,13 +63,19 @@ async def update_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
         
     try:
         updated_task = update_task(db, task, task_in)
         return success_response(data = TaskResponse.model_validate(updated_task).model_dump(mode="json"))
     except ValueError as exc:
-        return error_response(status_code = status.HTTP_400_BAD_REQUEST, message=str(exc), error_code = "VALUE_ERROR")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_200_OK)
@@ -77,7 +86,10 @@ async def delete_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found",
+        )
 
     delete_task(db, task)
     
