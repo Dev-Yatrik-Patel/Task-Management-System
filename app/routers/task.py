@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.dependencies.db import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
+from app.core.responses import success_response, error_response
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from app.services.task_service import (
     create_task,
@@ -21,7 +23,8 @@ async def create_task_api(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return create_task(db, current_user, task_in)
+    task = create_task(db, current_user, task_in)
+    return success_response(data = TaskResponse.model_validate(task).model_dump(mode="json"))
 
 
 @router.get("", response_model=list[TaskResponse])
@@ -29,7 +32,12 @@ async def list_tasks_api(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return get_tasks_for_user(db, current_user)
+    tasks = get_tasks_for_user(db, current_user)
+    data = [
+        TaskResponse.model_validate(task).model_dump(mode="json")
+        for task in tasks
+    ]
+    return success_response(data = data)
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
@@ -40,12 +48,8 @@ async def get_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found",
-        )
-    return task
-
+        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
+    return success_response(data = TaskResponse.model_validate(task).model_dump(mode="json"))
 
 @router.put("/{task_id}", response_model=TaskResponse)
 async def update_task_api(
@@ -56,18 +60,13 @@ async def update_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found",
-        )
+        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
         
     try:
-        return update_task(db, task, task_in)
+        updated_task = update_task(db, task, task_in)
+        return success_response(data = TaskResponse.model_validate(updated_task).model_dump(mode="json"))
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(exc),
-        )
+        return error_response(status_code = status.HTTP_400_BAD_REQUEST, message=str(exc), error_code = "VALUE_ERROR")
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_200_OK)
@@ -78,11 +77,8 @@ async def delete_task_api(
 ):
     task = get_task_by_id(db, task_id, current_user)
     if not task:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task not found",
-        )
+        return error_response(status_code = status.HTTP_404_NOT_FOUND, message="Task not found", error_code = "TASK_NOT_FOUND")
 
     delete_task(db, task)
     
-    return {"message" : "successfully deleted!"}
+    return success_response(message = "Task has been deleted successfully!")
