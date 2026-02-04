@@ -1,9 +1,16 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql://admin:admin123@localhost:5432/task_management"
+    DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    SECRET_KEY: str = "my_top_secret"
-    ALGORITHM: str = "HS256"
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / ".env",
+        env_file_encoding="utf-8"
+    )
     
 settings = Settings()
