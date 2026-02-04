@@ -1,3 +1,4 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.models.task import Task
@@ -17,8 +18,29 @@ def create_task(db: Session, user: User, task_in: TaskCreate) -> Task:
     db.refresh(task)
     return task
 
-def get_tasks_for_user(db: Session, user: User) -> list[Task]:
-    return db.query(Task).filter(Task.user_id == user.id).all()
+def get_tasks_for_user( db: Session, user: User, page: int = 1, page_size: int = 20, search: str | None = None ) -> tuple[list[Task], int]:
+    query = db.query(Task).filter(Task.user_id == user.id)
+
+    if search:
+        ilike = f"%{search}%"
+        query = query.filter(
+            or_(
+                Task.title.ilike(ilike),
+                Task.description.ilike(ilike),
+            )
+        )
+
+    total = query.count()
+
+    tasks = (
+        query
+        .order_by(Task.created_at.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
+
+    return tasks, total
 
 def get_task_by_id(db: Session, task_id: int, user: User) -> Task | None:
     return (

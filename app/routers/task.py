@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -28,16 +28,19 @@ async def create_task_api(
 
 
 @router.get("", response_model=list[TaskResponse])
-async def list_tasks_api(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    tasks = get_tasks_for_user(db, current_user)
-    data = [
-        TaskResponse.model_validate(task).model_dump(mode="json")
-        for task in tasks
-    ]
-    return success_response(data = data)
+async def list_tasks_api( db: Session = Depends(get_db), 
+                          current_user: User = Depends(get_current_user),
+                          page: int = Query(1, ge=1),
+                          page_size: int = Query(20, ge=1, le=100),
+                          q: str | None = Query(None, min_length=1) ):
+    
+    tasks, total = get_tasks_for_user( db=db, user=current_user, page=page, page_size=page_size, search=q )
+
+    tasks_responses = [ TaskResponse.model_validate(task).model_dump(mode="json") for task in tasks ]
+    
+    data = { "page": page, "page_size": page_size, "total": total, "tasks" : tasks_responses }
+
+    return success_response(data=data)
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
