@@ -28,13 +28,13 @@ app/
 │   ├── config.py
 │   ├── database.py
 │   └── security.py
+│   └── responses.py
 ├── models/
 │   ├── user.py
 │   └── task.py
 ├── schemas/
 │   ├── user.py
 │   ├── task.py
-│   └── common.py
 ├── routers/
 │   ├── auth.py
 │   ├── user.py
@@ -46,7 +46,13 @@ app/
 │   ├── db.py
 │   └── auth.py
 ├── migrations/
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   ├── versions
+│   │   └── 5aeb8d46629c_create_user_and_tasks_tables.py
 ├── tests/
+├── alembic.ini
 └── main.py
 ````
 
