@@ -10,6 +10,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
+    ''' 
+    $2b$12$A1b2C3D4E5F6G7H8I9J0KLMNOPQRSTUVWXYZ1234567890
+    │   │   └──────────── salt ────────────┘└─ hash ─┘
+    │   └─ cost factor
+    └─ algorithm 
+    '''
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
