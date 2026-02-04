@@ -4,6 +4,8 @@ from app.models.task import Task
 from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate
 
+VALID_STATUSES = {"pending", "completed"}
+
 def create_task(db: Session, user: User, task_in: TaskCreate) -> Task:
     task = Task(
         title=task_in.title,
@@ -31,6 +33,8 @@ def update_task( db: Session, task: Task, task_in: TaskUpdate) -> Task:
     if task_in.description is not None:
         task.description = task_in.description
     if task_in.status is not None:
+        if task_in.status not in VALID_STATUSES:
+            raise ValueError("Invalid task status")
         task.status = task_in.status
     db.commit()
     db.refresh(task)

@@ -60,8 +60,14 @@ async def update_task_api(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found",
         )
-
-    return update_task(db, task, task_in)
+        
+    try:
+        return update_task(db, task, task_in)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_200_OK)
