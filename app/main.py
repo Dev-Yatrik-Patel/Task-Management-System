@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, status
+from fastapi.exceptions import RequestValidationError
 
 from app.core.responses import error_response
 from app.routers import auth, user, task
@@ -15,6 +16,15 @@ async def app_exception_handler(request: Request, exc: HTTPException):
         message=exc.detail,
         error_code="HTTP_ERROR",
         status_code=exc.status_code
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return error_response(
+        message="Validation error",
+        error_code="VALIDATION_ERROR",
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        details=str(exc.errors())
     )
 
 @app.get("/")

@@ -1,22 +1,24 @@
 # FastAPI Task Management System
 
 ## Overview
-This project is a production-style backend API built using FastAPI.  
-It implements a task management system with user authentication, task ownership, and database migrations.
+This project is a production-style backend API built using FastAPI for managing tasks with user authentication. It demonstrates clean architecture, proper separation of concerns, and real-world backend development practices including database migrations, JWT authentication, and dependency injection.
 
-The focus of this project is correctness, clean architecture, and real-world backend practices rather than feature overload.
+The system allows users to register, authenticate, and manage their personal tasks through a RESTful API.
 
 ---
 
 ## Tech Stack
 
-- FastAPI (API framework)
-- Uvicorn (ASGI server)
-- SQLAlchemy 2.x (ORM)
-- Alembic (Database migrations)
-- PostgreSQL (Database)
-- Pydantic v2 (Validation & serialization)
-- JWT (Token-based authentication)
+| Layer | Technology |
+|-------|------------|
+| API Framework | FastAPI |
+| Server | Uvicorn |
+| ORM | SQLAlchemy 2.x |
+| Migrations | Alembic |
+| Validation | Pydantic v2 |
+| Authentication | JWT (JSON Web Tokens) |
+| Database | PostgreSQL |
+| Password Hashing | Bcrypt |
 
 ---
 
@@ -25,48 +27,92 @@ The focus of this project is correctness, clean architecture, and real-world bac
 ```
 app/
 ├── core/
-│   ├── config.py
-│   ├── database.py
-│   └── security.py
-│   └── responses.py
+│   ├── config.py           # Environment & settings
+│   ├── database.py         # DB engine & session
+│   ├── security.py         # Password hashing & JWT
+│   └── responses.py        # Standardized API responses
 ├── models/
-│   ├── user.py
-│   └── task.py
+│   ├── user.py             # SQLAlchemy User model
+│   └── task.py             # SQLAlchemy Task model
 ├── schemas/
-│   ├── user.py
-│   ├── task.py
+│   ├── user.py             # Pydantic user schemas
+│   └── task.py             # Pydantic task schemas
 ├── routers/
-│   ├── auth.py
-│   ├── user.py
-│   └── task.py
+│   ├── auth.py             # Authentication APIs
+│   ├── user.py             # User-related APIs
+│   └── task.py             # Task-related APIs
 ├── services/
-│   ├── user_service.py
-│   └── task_service.py
+│   ├── user_service.py     # User business logic
+│   └── task_service.py     # Task business logic
 ├── dependencies/
-│   ├── db.py
-│   └── auth.py
-├── migrations/
-│   ├── env.py
-│   ├── README
-│   ├── script.py.mako
-│   ├── versions
-│   │   └── 5aeb8d46629c_create_user_and_tasks_tables.py
-├── tests/
-├── alembic.ini
-└── main.py
-````
+│   ├── db.py               # DB session dependency
+│   └── auth.py             # Auth dependency
+├── migrations/             # Alembic migrations
+│   └── versions/
+│       └── 5aeb8d46629c_create_user_and_tasks_tables.py
+├── tests/                  # Test files
+├── alembic.ini            # Alembic configuration
+├── main.py                # Application entry point
+└── requirements.txt       # Project dependencies
+```
 
 ---
 
-## Authentication Flow
+## Setup Instructions
 
-1. User registers using email and password
-2. Password is hashed using bcrypt
-3. User logs in using OAuth2-compatible form data
-4. Server returns a JWT access token
-5. Token is sent in `Authorization: Bearer <token>` header
-6. Protected routes validate token and load the current user
+### Prerequisites
+- Python 3.10 or higher
+- PostgreSQL (or SQLite for development)
+- pip package manager
 
+### Step 1: Clone and Navigate
+```bash
+cd task-management-system
+```
+
+### Step 2: Create Virtual Environment
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Linux/Mac:
+source venv/bin/activate
+
+# On Windows:
+venv\Scripts\activate
+```
+
+### Step 3: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### Step 4: Configure Environment Variables
+Create a `.env` file in the project root directory:
+
+```env
+DATABASE_URL=postgresql://username:password@localhost:5432/taskdb
+SECRET_KEY=your-super-secret-key-change-this-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+### Step 5: Run Database Migrations
+```bash
+# Apply all migrations to create database tables
+alembic upgrade head
+```
+
+### Step 6: Start the Server
+```bash
+# Run the development server
+uvicorn app.main:app --reload
+```
+
+The API will be available at:
+- **Base URL**: http://localhost:8000
+- **Interactive API docs (Swagger)**: http://localhost:8000/docs
 ---
 
 ## API Endpoints
@@ -134,3 +180,6 @@ alembic downgrade -1
 * Rate limiting
 * Role-based access control
 * Automated tests
+  
+---
+**Note**: This project is built as part of a FastAPI practical assignment to demonstrate backend development skills including authentication, database design, API development, and production-ready code practices.
