@@ -53,7 +53,8 @@ app/
 ├── tests/
 │   ├── conftest.py         # Configure Test fixtures
 │   ├── test_auth.py        # Test auth endpoints 
-│   └── test_tasks.py       # Test tasks endpoints
+│   ├── test_tasks.py        # Test tasks endpoints 
+│   └── test_user.py       # Test user endpoints
 ├── alembic.ini            # Alembic configuration
 ├── main.py                # Application entry point
 └── requirements.txt       # Project dependencies
