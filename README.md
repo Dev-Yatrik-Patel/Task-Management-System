@@ -50,7 +50,10 @@ app/
 ├── migrations/             # Alembic migrations
 │   └── versions/
 │       └── 5aeb8d46629c_create_user_and_tasks_tables.py
-├── tests/                  # Test files
+├── tests/
+│   ├── conftest.py         # Configure Test fixtures
+│   ├── test_auth.py        # Test auth endpoints 
+│   └── test_tasks.py       # Test tasks endpoints
 ├── alembic.ini            # Alembic configuration
 ├── main.py                # Application entry point
 └── requirements.txt       # Project dependencies
@@ -115,6 +118,23 @@ The API will be available at:
 - **Interactive API docs (Swagger)**: http://localhost:8000/docs
 ---
 
+## Running Tests
+
+This project includes automated integration tests to validate authentication flows and task APIs.
+
+### Test Setup
+- Tests use **pytest** with **pytest-asyncio**
+- A separate in-memory SQLite database is used during tests
+- The test database is fully isolated and does not affect the development or production database
+
+### Run Tests
+
+Make sure your virtual environment is activated, then run the following command from the **project root directory**:
+
+```bash
+pytest
+```
+
 ## API Endpoints
 
 ### Authentication
@@ -123,6 +143,7 @@ The API will be available at:
 
 ### User
 - GET `/users/me`
+- POST `users/deleteprofile`
 
 ### Tasks (Authenticated)
 - POST `/tasks`

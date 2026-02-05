@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.db import get_db
 from app.schemas.user import UserCreate, UserLogin, UserResponse
-from app.services.user_service import create_user, authenticate_user, get_user_by_email
+from app.services.user_service import create_user, authenticate_user, get_user_by_email, get_user_history_if_exist
 from app.core.security import create_access_token
 from app.core.responses import success_response, error_response
 
@@ -13,8 +13,10 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, db: Session = Depends(get_db)):
+    # to prevent the user with same emails.
     existing_user = get_user_by_email(db, user_in.email)
-    if existing_user:
+    user_history = get_user_history_if_exist(db, user_in.email) 
+    if existing_user or user_history:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",

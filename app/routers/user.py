@@ -13,7 +13,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 async def get_me(current_user: User = Depends(get_current_user)):
     return success_response(data = UserResponse.model_validate(current_user).model_dump(mode="json"))
 
-@router.get("/deleteprofile")
+@router.post("/deleteprofile")
 async def delete_my_profile(current_user: User = Depends(get_current_user), db: Session = Depends(get_db) ):
     existing_user_profile = db.query(User).filter(User.id == current_user.id, User.is_active == True).first()
         
